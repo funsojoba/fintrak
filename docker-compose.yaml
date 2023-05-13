@@ -1,0 +1,45 @@
+version: '3.3'
+
+services:
+  db:
+    image: postgres:12
+    container_name: db
+    restart: always
+    networks:
+      - fintrak-network
+    environment:
+      POSTGRES_DATABASE: admin
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_ROOT_PASSWORD: root
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  web:
+    build: .
+    container_name: fintrak_image
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+    networks:
+      - fintrak-network
+
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: always
+    ports:
+      - 1026:1025
+      - 8026:8025
+
+networks:
+  fintrak-network:
+    driver: bridge
